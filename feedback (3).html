@@ -165,13 +165,14 @@
         const form = document.getElementById('form');
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            //console.log('Нажали "отправить" И больше ничего')
 
             const data = {
                 'name': form.elements[0].value,
                 '_replyto': form.elements[1].value
             }
-
+            const textarea = document.getElementById('textarea');
+        textarea.addEventListener('submit', function (b) {
+            b.preventDefault();
 
             let request = new XMLHttpRequest();
             request.open("POST", "https://getform.io/f/9620816e-296e-4505-af15-4e3056aa3b5a", true);
@@ -181,9 +182,7 @@
             form.reset();
 
             inputs.forEach(function(input) {
-                //if (input.getAttribute('type') !== 'submit') {
                     focusoutInputHandler.call(input);
-                //}
             });
 
             if (request.status != 200) {
