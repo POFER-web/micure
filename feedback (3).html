@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Обратная связь</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;500&display=swap" rel="stylesheet">
+    <textarea rows="10" cols="45" name="text"></textarea>>
     <style>
-
         /*primary color: #ffbf02
           secondary color: #0241ff
         */
@@ -16,6 +17,7 @@
             -moz-box-sizing: border-box;
             box-sizing: border-box;
         }
+
         html {
             font-size: 16px;
         }
@@ -36,8 +38,7 @@
             margin-top: 50px;
         }
 
-        #form {
-        }
+        #form {}
 
         input {
             display: block;
@@ -54,9 +55,9 @@
         }
 
         input:focus {
-            border-color:rgb(255, 191, 2);
+            border-color: rgb(255, 191, 2);
         }
-        
+
         .form-heading {
             margin-top: 0;
             font-size: 1.5rem;
@@ -98,17 +99,19 @@
         }
 
         input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px  #fff inset;
+            -webkit-box-shadow: 0 0 0px 1000px #fff inset;
         }
+        
     </style>
 </head>
+
 <body>
     <div class='form-container'>
         <h3 class='form-heading'>Формочка</h3>
-        <form action="" id="form">
+        <form id="form">
             <div class="field">
                 <label for="name">Имя</label>
-                <input type="text" id="name">
+                <input type="text" id="name" required>
             </div>
             <div class="field">
                 <label for="email">E-mail</label>
@@ -118,35 +121,78 @@
         </form>
     </div>
     <script>
-        const inputs = [].slice.call(document.querySelectorAll('input'))
+        const inputs = [].slice
+            .call(document.querySelectorAll('input'))
+            .filter(function(input){
+                return input.getAttribute('type') !== 'submit';
+        });
 
-        inputs.forEach(function(input) {
-            if (input.getAttribute('type') !== 'submit') {
-                console.log(input);
-                console.log('input value: ' + input.value);
+        inputs.forEach(function (input) {
+            // if (input.getAttribute('type') !== 'submit') {
                 if (input.value !== '') {
-                    const label = document.querySelectorAll('label[for="' + input.id + '"]');
-                    label[0].classList.add('focused');
+                    // const label = document.querySelectorAll('label[for="' + input.id + '"]');
+                    // label[0].classList.add('focused');
+                    focusinInputHandler.call(input);
                 }
-                
+
 
                 input.addEventListener('focusin', focusinInputHandler);
                 input.addEventListener('focusout', focusoutInputHandler);
+            // }
+        });
+
+        function focusinInputHandler() {
+            const label = document.querySelectorAll('label[for="' + this.id + '"]');
+            label[0].classList.add('focused');
+        }
+
+        function focusoutInputHandler() {
+            const label = document.querySelectorAll('label[for="' + this.id + '"]');
+            if (this.value === '') {
+                label[0].classList.remove('focused');
+            }
+        }
+
+        function encode(data) {
+            const encodeData = [];
+
+            for (let key in data) {
+                encodeData.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+            }
+            return encodeData.join("&");
+        }
+
+        const form = document.getElementById('form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            //console.log('Нажали "отправить" И больше ничего')
+
+            const data = {
+                'name': form.elements[0].value,
+                '_replyto': form.elements[1].value
             }
 
-            function focusinInputHandler() {
-                const label = document.querySelectorAll('label[for="' + this.id + '"]');
-                label[0].classList.add('focused');
-            }
 
-            function focusoutInputHandler() {
-                const label = document.querySelectorAll('label[for="' + this.id + '"]');
-                if (this.value === '') {
-                    label[0].classList.remove('focused');
-                }
+            let request = new XMLHttpRequest();
+            request.open("POST", "https://getform.io/f/9c35dca8-a33f-4aae-8dd0-2fb1f123841e", true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            request.send(encode(data));
+
+            form.reset();
+
+            inputs.forEach(function(input) {
+                //if (input.getAttribute('type') !== 'submit') {
+                    focusoutInputHandler.call(input);
+                //}
+            });
+
+            if (request.status != 200) {
+                console.log('Все норм!');
+            } else {
+                console.log('Что-то пошло не так', request.responseText);
             }
         });
-        console.log('ахдщба')
     </script>
 </body>
+
 </html>
