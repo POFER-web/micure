@@ -170,9 +170,6 @@
                 'name': form.elements[0].value,
                 '_replyto': form.elements[1].value
             }
-            const textarea = document.getElementById('textarea');
-        textarea.addEventListener('submit', function (b) {
-            b.preventDefault();
 
             let request = new XMLHttpRequest();
             request.open("POST", "https://getform.io/f/9620816e-296e-4505-af15-4e3056aa3b5a", true);
