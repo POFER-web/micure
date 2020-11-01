@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Обратная связь</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;500&display=swap" rel="stylesheet">
+    <style>
+        /*primary color: #ffbf02
+          secondary color: #0241ff
+        */
+
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .form-container {
+            background-color: #fff;
+            max-width: 450px;
+            width: 95%;
+            margin: auto;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 50px;
+        }
+
+        #form {}
+
+        input {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.4rem 0;
+            outline: none;
+            font-size: 1rem;
+            letter-spacing: 0.75px;
+            border: none;
+            border-bottom: 1.5px solid rgb(200, 200, 200);
+            transition: 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        input:focus {
+            border-color: rgb(255, 191, 2);
+        }
+
+        .form-heading {
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: 0.75px;
+        }
+
+        #submit {
+            border: none;
+            background-color: rgb(255, 191, 2);
+            color: #fff;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 0.6rem 0;
+            width: 150px;
+            margin-left: calc(100% - 150px);
+            box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: 0.2s ease;
+            margin-top: 1.5rem;
+        }
+
+        #submit:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            letter-spacing: 0.75px;
+            color: rgb(68, 68, 68);
+            transform: translateY(2rem);
+            transition: 0.2s ease;
+        }
+
+        .focused {
+            transform: translateX(-12.5%) translateY(0.2rem) scale(0.75);
+        }
+
+        input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class='form-container'>
+        <h3 class='form-heading'>Формочка</h3>
+        <form id="form">
+            <div class="field">
+                <label for="name">Имя</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="field">
+                <label for="email">E-mail</label>
+                <input type="email" id="email">
+                <textarea rows="10" cols="45" name="text"></textarea>
+            </div>
+            <input type="submit" id="submit">
+        </form>
+    </div>
+    <script>
+        const inputs = [].slice
+            .call(document.querySelectorAll('input'))
+            .filter(function(input){
+                return input.getAttribute('type') !== 'submit';
+        });
+
+        inputs.forEach(function (input) {
+            // if (input.getAttribute('type') !== 'submit') {
+                if (input.value !== '') {
+                    // const label = document.querySelectorAll('label[for="' + input.id + '"]');
+                    // label[0].classList.add('focused');
+                    focusinInputHandler.call(input);
+                }
+
+
+                input.addEventListener('focusin', focusinInputHandler);
+                input.addEventListener('focusout', focusoutInputHandler);
+            // }
+        });
+
+        function focusinInputHandler() {
+            const label = document.querySelectorAll('label[for="' + this.id + '"]');
+            label[0].classList.add('focused');
+        }
+
+        function focusoutInputHandler() {
+            const label = document.querySelectorAll('label[for="' + this.id + '"]');
+            if (this.value === '') {
+                label[0].classList.remove('focused');
+            }
+        }
+
+        function encode(data) {
+            const encodeData = [];
+
+            for (let key in data) {
+                encodeData.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+            }
+            return encodeData.join("&");
+        }
+
+        const form = document.getElementById('form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            //console.log('Нажали "отправить" И больше ничего')
+
+
+            const data = {
+                'name': form.elements[0].value,
+                '_replyto': form.elements[1].value,
+                'text': form.elements[2].value
+            }
+
+            let request = new XMLHttpRequest();
+            request.open("POST", "https://getform.io/f/9620816e-296e-4505-af15-4e3056aa3b5a", true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            request.send(encode(data));
+
+            form.reset();
+
+            inputs.forEach(function(input) {
+                    focusoutInputHandler.call(input);
+            });
+
+            if (request.status != 200) {
+                console.log('Все норм!');
+            } else {
+                console.log('Что-то пошло не так', request.responseText);
+            }
+        });
+    </script>
+</body>
+
+</html>
